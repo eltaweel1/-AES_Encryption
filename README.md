@@ -286,7 +286,6 @@ The following matrix summarizes the implemented verification coverage:
 
 ![alt text](<Screenshot 2026-08-14 213743.png>)
 
-
 The AES Round testbench verifies the integration of the AES transformations:
 
 ```text id="fr7k5x"
@@ -316,8 +315,9 @@ Each supported mode was verified independently using the AES core.
 
 ### ECB
 
-**📷 Insert ECB Verification Screenshot Here**
-
+![alt text](<Screenshot 2026-08-14 214348.png>) 
+![alt text](<Screenshot 2026-08-14 214231.png>) 
+![alt text](<Screenshot 2026-08-14 214627.png>)
 `AES_ECB_512_tb.v`
 
 The testbench verifies ECB operation for:
@@ -330,8 +330,9 @@ The testbench verifies ECB operation for:
 
 ### CBC
 
-**📷 Insert CBC Verification Screenshot Here**
-
+![alt text](<Screenshot 2026-08-14 214939.png>)
+![alt text](<Screenshot 2026-08-14 214850.png>) 
+![alt text](<Screenshot 2026-08-14 214758.png>) 
 `AES_CBC_512_tb.v`
 
 The testbench verifies CBC operation for:
@@ -344,8 +345,9 @@ The testbench verifies CBC operation for:
 
 ### CFB
 
-**📷 Insert CFB Verification Screenshot Here**
-
+![alt text](<Screenshot 2026-08-14 215252.png>)
+![alt text](<Screenshot 2026-08-14 215204.png>) 
+![alt text](<Screenshot 2026-08-14 215118.png>) 
 `AES_CFB_512_tb.v`
 
 The testbench verifies CFB operation for:
@@ -358,8 +360,9 @@ The testbench verifies CFB operation for:
 
 ### OFB
 
-**📷 Insert OFB Verification Screenshot Here**
-
+![alt text](<Screenshot 2026-08-14 215650.png>)
+![alt text](<Screenshot 2026-08-14 215549.png>) 
+![alt text](<Screenshot 2026-08-14 215502.png>) 
 `AES_OFB_512_tb.v`
 
 The testbench verifies OFB operation for:
@@ -372,8 +375,9 @@ The testbench verifies OFB operation for:
 
 ### CTR
 
-**📷 Insert CTR Verification Screenshot Here**
-
+![alt text](<Screenshot 2026-08-14 215936.png>)
+![alt text](<Screenshot 2026-08-14 215852.png>) 
+![alt text](<Screenshot 2026-08-14 215806.png>) 
 `AES_CTR_512_tb.v`
 
 The testbench verifies CTR operation for:
@@ -642,7 +646,7 @@ Possible future extensions include:
 
 # 👨‍💻 Author
 
-**Abdelrahman Eltaweel**
+**Abdelrahman Moamen Eltaweel**
 
 Electronics & Communications Engineering Student  
 Cairo University
