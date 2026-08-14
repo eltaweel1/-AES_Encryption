@@ -205,11 +205,7 @@ The generated round keys were verified against the AES key expansion reference e
 ### Key Expansion Verification
 
 ![alt text](<Screenshot 2026-08-14 211031.png>)
-
-
 ![alt text](<Screenshot 2026-08-14 211313.png>)
-
-
 ![alt text](<Screenshot 2026-08-14 211521.png>)
 
 
