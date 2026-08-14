@@ -1,0 +1,42 @@
+#!SPYGLASS_PROJECT_FILE
+#!VERSION 3.0
+#  -------------------------------------------------------------------
+#  This is a software generated project file. Manual edits to this file could be lost during the next save operation
+#  Copyright Synopsys Inc.
+#  Last Updated By: SpyGlass SpyGlass_vL-2016.06
+#  Last Updated On Fri Aug 14 10:56:00 2026
+#
+#  -------------------------------------------------------------------
+
+##Data Import Section
+
+read_file -type verilog ADDROUNDKEY.v
+read_file -type verilog AES_CBC_512.v
+read_file -type verilog AES_ECB_512.v
+read_file -type verilog AES_ROUND.v
+read_file -type verilog fsm.v
+read_file -type verilog Initial_Round.v
+read_file -type verilog key_exp.v
+read_file -type verilog MIXCOLUMNS.sv
+read_file -type verilog round_key.v
+read_file -type verilog sbox.v
+read_file -type verilog SHIFTROWS.sv
+read_file -type verilog state_register.v
+read_file -type verilog SUBBYTES.sv
+read_file -type verilog TOP.v
+
+##Common Options Section
+
+set_option projectwdir .
+set_option language_mode mixed
+set_option designread_enable_synthesis no
+set_option designread_disable_flatten no
+set_option enableSV yes
+set_option define_cell_sim_depth 16
+set_option active_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
+
+
+##Goal Setup Section
+
+current_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
+
