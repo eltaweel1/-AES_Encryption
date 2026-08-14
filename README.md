@@ -6,19 +6,19 @@ The design supports **AES-128, AES-192, and AES-256**, with dedicated verificati
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
 This project implements the **AES encryption algorithm at the RTL hardware level**.
 
-The design was developed using a modular architecture in which the AES encryption datapath, key expansion logic, control FSM, and state storage are implemented as separate reusable modules.
+The design uses a modular architecture in which the AES datapath, key expansion logic, control FSM, and state storage are implemented as separate RTL modules.
 
-The project also extends the AES core to support multiple block cipher modes:
+The AES core is then integrated into five block cipher modes:
 
-- ECB — Electronic Codebook
-- CBC — Cipher Block Chaining
-- CFB — Cipher Feedback
-- OFB — Output Feedback
-- CTR — Counter
+- **ECB** — Electronic Codebook
+- **CBC** — Cipher Block Chaining
+- **CFB** — Cipher Feedback
+- **OFB** — Output Feedback
+- **CTR** — Counter
 
 The implementation supports the three standard AES key sizes:
 
@@ -32,7 +32,7 @@ The AES data block size is **128 bits**.
 
 ---
 
-# ✨ Key Features
+#  Key Features
 
 - ✅ AES-128 encryption
 - ✅ AES-192 encryption
@@ -58,58 +58,64 @@ The AES data block size is **128 bits**.
 - ✅ Verification of all supported encryption modes
 - ✅ ModelSim/QuestaSim simulation
 - ✅ RTL linting
+- ✅ Synthesis
 
 ---
 
-# 🏗️ Architecture
+#  Architecture
 
 The design is divided into two main parts:
 
 1. **AES Encryption Core**
 2. **Encryption Mode Wrappers**
 
-The AES core contains the cryptographic datapath, key expansion, state storage, and control logic.
+### AES Core
 
-### AES Core Architecture
+At the top level, plaintext and the encryption key are processed by the AES core. The control FSM sequences the encryption rounds, while the Key Expansion logic generates and selects the required round keys.
 
-```text id="j9m8x3"
-                         ┌─────────────────────┐
-                         │      AES TOP        │
-                         └──────────┬──────────┘
-                                    │
-                    ┌───────────────┴───────────────┐
-                    │                               │
-             ┌──────▼──────┐                 ┌──────▼──────┐
-             │     FSM     │                 │ Key         │
-             │   Control   │                 │ Expansion   │
-             └──────┬──────┘                 └──────┬──────┘
-                    │                               │
-                    │                        ┌──────▼──────┐
-                    │                        │ Round Keys  │
-                    │                        └─────────────┘
-                    │
-             ┌──────▼───────────────┐
-             │    State Register    │
-             └──────────┬───────────┘
-                        │
-                 ┌──────▼──────┐
-                 │  AES ROUND  │
-                 └──────┬──────┘
-                        │
-              ┌─────────┼─────────┐
-              │         │         │
-          SubBytes  ShiftRows  MixColumns
-              │         │         │
-              └─────────┼─────────┘
-                        │
-                 AddRoundKey
-                        │
-                      Output
-```
+The core uses an **iterative architecture**, reusing the `AES_ROUND` datapath across encryption rounds rather than instantiating a separate round datapath for every round.
+
+### Top-Level Flow
+![alt text](Architecture/top_flow.png)
+> **Architecture note:** The `AES_ROUND` module is iteratively reused across the encryption process, providing a resource-efficient round-based datapath.
+
+### AES Round Datapath
+
+![alt text](Architecture/aes_round_top.png)
+For the **final AES round**, `MixColumns` is bypassed as required by the AES specification.
 
 ---
 
-# 🔑 AES Encryption Core
+## Encryption Modes Architecture
+
+The AES core is reused by the five implemented block cipher modes.
+
+The repository contains dedicated top-level modules for each mode.
+
+### Mode-Level RTL Flow
+
+---
+
+![OFB Mode Architecture](Architecture/ofb_flow.png)
+---
+
+![CFB Mode Architecture](Architecture/cfb_flow.png)
+---
+
+![ECB Mode Architecture](Architecture/ecb_flow.png)
+---
+
+![CBC Mode Architecture](Architecture/cbc_flow.png)
+---
+
+![CTR Mode Architecture](Architecture/ctr_flow.png)
+
+
+These diagrams illustrate the RTL data flow and feedback/counter mechanism used by each mode.
+
+---
+
+# AES Encryption Core
 
 The main AES implementation is located in:
 
@@ -138,31 +144,12 @@ The core is composed of several independent RTL modules.
 
 ---
 
-# 🔄 AES Encryption Process
+# AES Encryption Process
 
 The AES encryption datapath follows the standard AES transformation sequence.
 
 For a normal AES round:
-
-```text id="e4y2g1"
-              ┌────────────┐
-State ───────►│  SubBytes  │
-              └─────┬──────┘
-                    │
-              ┌─────▼──────┐
-              │ ShiftRows  │
-              └─────┬──────┘
-                    │
-              ┌─────▼──────┐
-              │ MixColumns │
-              └─────┬──────┘
-                    │
-              ┌─────▼──────┐
-              │AddRoundKey │
-              └─────┬──────┘
-                    │
-                  State
-```
+![alt text](Architecture/aes_round_top-1.png)
 
 The **initial round** performs only:
 
@@ -176,7 +163,7 @@ The control FSM determines the appropriate sequence of operations and coordinate
 
 ---
 
-# 🔐 Key Expansion
+# Key Expansion
 
 The project implements AES Key Expansion for all three standard key sizes:
 
@@ -204,14 +191,14 @@ The generated round keys were verified against the AES key expansion reference e
 
 ### Key Expansion Verification
 
-![alt text](<Screenshot 2026-08-14 211031.png>)
-![alt text](<Screenshot 2026-08-14 211313.png>)
-![alt text](<Screenshot 2026-08-14 211521.png>)
+![alt text](Result/Waveform/128.png)
+![alt text](Result/Waveform/192.png)
+![alt text](Result/Waveform/256.png)
 
 
 ---
 
-# 🔀 Encryption Modes
+# Encryption Modes
 
 The AES core is used to implement five block cipher modes of operation:
 
@@ -243,7 +230,7 @@ Each mode has a dedicated testbench.
 
 ---
 
-# 🧪 Verification
+# Verification
 
 Verification was performed at multiple levels, from individual AES components to the complete encryption modes.
 
@@ -262,14 +249,13 @@ The implemented AES core and encryption modes were tested using **AES-128, AES-1
 
 ---
 
-# 📊 Verification Results
+# Verification Results
 
 The following matrix summarizes the implemented verification coverage:
 
 | Component / Mode | AES-128 | AES-192 | AES-256 |
 |------------------|:-------:|:-------:|:-------:|
 | Key Expansion | ✅ | ✅ | ✅ |
-| AES Core | ✅ | ✅ | ✅ |
 | ECB | ✅ | ✅ | ✅ |
 | CBC | ✅ | ✅ | ✅ |
 | CFB | ✅ | ✅ | ✅ |
@@ -280,44 +266,31 @@ The following matrix summarizes the implemented verification coverage:
 
 ---
 
-## 🔬 AES Core Verification
+## AES Core Verification
 
 ### AES Round
 
-![alt text](<Screenshot 2026-08-14 213743.png>)
+![alt text](Result/Waveform/round.png)
 
-The AES Round testbench verifies the integration of the AES transformations:
-
-```text id="fr7k5x"
-SubBytes
-    ↓
-ShiftRows
-    ↓
-MixColumns
-    ↓
-AddRoundKey
-```
 
 ---
 
 ### AES Top-Level
 
-![alt text](<Screenshot 2026-08-14 214135.png>)
+![alt text](Result/Waveform/top.png)
 
-
-This testbench verifies the complete AES encryption flow and the interaction between the datapath, FSM, state register, and key expansion logic.
 
 ---
 
-# 🔐 Encryption Mode Verification
+# Encryption Mode Verification
 
 Each supported mode was verified independently using the AES core.
 
 ### ECB
 
-![alt text](<Screenshot 2026-08-14 214348.png>) 
-![alt text](<Screenshot 2026-08-14 214231.png>) 
-![alt text](<Screenshot 2026-08-14 214627.png>)
+![alt text](Result/Waveform/ECB/128.png) 
+![alt text](Result/Waveform/ECB/192.png) 
+![alt text](Result/Waveform/ECB/256.png) 
 `AES_ECB_512_tb.v`
 
 The testbench verifies ECB operation for:
@@ -330,9 +303,9 @@ The testbench verifies ECB operation for:
 
 ### CBC
 
-![alt text](<Screenshot 2026-08-14 214939.png>)
-![alt text](<Screenshot 2026-08-14 214850.png>) 
-![alt text](<Screenshot 2026-08-14 214758.png>) 
+![alt text](Result/Waveform/CBC/128.png) 
+![alt text](Result/Waveform/CBC/192.png) 
+![alt text](Result/Waveform/CBC/256.png) 
 `AES_CBC_512_tb.v`
 
 The testbench verifies CBC operation for:
@@ -345,9 +318,9 @@ The testbench verifies CBC operation for:
 
 ### CFB
 
-![alt text](<Screenshot 2026-08-14 215252.png>)
-![alt text](<Screenshot 2026-08-14 215204.png>) 
-![alt text](<Screenshot 2026-08-14 215118.png>) 
+![alt text](Result/Waveform/CFB/128.png) 
+![alt text](Result/Waveform/CFB/192.png) 
+![alt text](Result/Waveform/CFB/256.png)
 `AES_CFB_512_tb.v`
 
 The testbench verifies CFB operation for:
@@ -360,9 +333,9 @@ The testbench verifies CFB operation for:
 
 ### OFB
 
-![alt text](<Screenshot 2026-08-14 215650.png>)
-![alt text](<Screenshot 2026-08-14 215549.png>) 
-![alt text](<Screenshot 2026-08-14 215502.png>) 
+![alt text](Result/Waveform/OFB/128.png) 
+![alt text](Result/Waveform/OFB/192.png) 
+![alt text](Result/Waveform/OFB/256.png)
 `AES_OFB_512_tb.v`
 
 The testbench verifies OFB operation for:
@@ -375,9 +348,9 @@ The testbench verifies OFB operation for:
 
 ### CTR
 
-![alt text](<Screenshot 2026-08-14 215936.png>)
-![alt text](<Screenshot 2026-08-14 215852.png>) 
-![alt text](<Screenshot 2026-08-14 215806.png>) 
+![alt text](Result/Waveform/CTR/128.png) 
+![alt text](Result/Waveform/CTR/192.png) 
+![alt text](Result/Waveform/CTR/256.png)
 `AES_CTR_512_tb.v`
 
 The testbench verifies CTR operation for:
@@ -388,7 +361,7 @@ The testbench verifies CTR operation for:
 
 ---
 
-# 🧩 Repository Structure
+# Repository Structure
 
 ```text id="5myq8e"
 -AES_Encryption/
@@ -429,10 +402,10 @@ The testbench verifies CTR operation for:
 │
 ├── TB_for_encryption_modes/
 │   ├── AES_CBC_512_tb.v
-│   ├── AES_CFB_512.v
-│   ├── AES_CTR_512.v
-│   ├── AES_ECB_512.v
-│   └── AES_OFB_512.v
+│   ├── AES_CFB_512_tb.v
+│   ├── AES_CTR_512_tb.v
+│   ├── AES_ECB_512_tb.v
+│   └── AES_OFB_512_tb.v
 │
 ├── LINT/
 ├── config.vh
@@ -442,7 +415,7 @@ The testbench verifies CTR operation for:
 
 ---
 
-# ⚙️ Configuration
+# Configuration
 
 The AES configuration is controlled through:
 
@@ -469,139 +442,19 @@ The configuration controls the key size and the number of AES rounds.
 
 ---
 
-# ▶️ Simulation
 
-The repository includes a ModelSim/QuestaSim simulation script:
+# References
+NIST FIPS 197: Advanced Encryption Standard (AES)
 
-```text id="5x2f9m"
-run.do
-```
+https://csrc.nist.gov/pubs/fips/197/final
 
-The general simulation flow is:
+NIST SP 800-38A: Recommendation for Block Cipher Modes of Operation
 
-```text id="n7p1q4"
-Compile RTL
-     ↓
-Compile Testbench
-     ↓
-Start Simulation
-     ↓
-Apply Test Stimulus
-     ↓
-Monitor Waveforms
-     ↓
-Compare Actual vs Expected Results
-```
+https://csrc.nist.gov/pubs/sp/800/38/a/final
 
-Individual testbenches can also be simulated independently for module-level debugging and verification.
 
----
 
-# 🔍 Verification Methodology
-
-The verification strategy follows a hierarchical approach:
-
-```text id="p8d3r2"
-                         Verification
-                              │
-                ┌─────────────┴─────────────┐
-                │                           │
-          Unit-Level                  Integration-Level
-                │                           │
-        ┌───────┴────────┐          ┌───────┴────────┐
-        │                │          │                │
-   AES Components   Key Expansion  AES Core     Encryption Modes
-        │                │          │                │
-        └────────────────┴──────────┴────────────────┘
-```
-
-This methodology allows individual modules to be verified before integration into the complete AES architecture.
-
-It also makes debugging easier by isolating errors at the component level before validating the complete encryption system.
-
----
-
-# 🛠️ Tools & Technologies
-
-### Hardware Description Languages
-
-- Verilog
-- SystemVerilog
-
-### Design Concepts
-
-- RTL Design
-- Digital Logic Design
-- Datapath Design
-- Finite State Machines
-- Sequential Logic
-- Combinational Logic
-- Cryptographic Hardware
-
-### Verification
-
-- RTL Testbenches
-- Functional Simulation
-- Waveform Analysis
-- Reference-Vector Verification
-- Linting
-
-### Tools
-
-- ModelSim / QuestaSim
-- Vivado
-
----
-
-# 📚 References
-
-The implementation and verification of this project were based on the following references.
-
-### 1. NIST — Advanced Encryption Standard
-
-**FIPS 197 — Advanced Encryption Standard (AES)**
-
-Used as the primary reference for:
-
-- AES algorithm
-- AES state representation
-- AES transformations
-- AES key sizes
-- Number of rounds
-- Key expansion
-- Encryption procedure
-
----
-
-### 2. NIST — Block Cipher Modes of Operation
-
-**NIST SP 800-38A — Recommendation for Block Cipher Modes of Operation**
-
-Used as a reference for:
-
-- ECB
-- CBC
-- CFB
-- OFB
-- CTR
-
----
-
-### 3. AES Key Expansion Examples
-
-**Appendix A — Key Expansion Examples**
-
-Used to verify the generated round keys for:
-
-- AES-128
-- AES-192
-- AES-256
-
-These examples were used as reference vectors during the implementation and verification of the key expansion logic.
-
----
-
-### 4. Project Repository
+### Project Repository
 
 The complete RTL implementation, testbenches, configuration files, linting files, and simulation scripts are available in this repository:
 
@@ -609,40 +462,6 @@ The complete RTL implementation, testbenches, configuration files, linting files
 
 ---
 
-# 🎯 Project Objectives
-
-The main objectives of this project were to:
-
-- Understand AES from a hardware perspective.
-- Translate the AES algorithm into synthesizable RTL.
-- Design a modular AES encryption datapath.
-- Implement configurable AES Key Expansion.
-- Support AES-128, AES-192, and AES-256.
-- Design FSM-based control logic.
-- Integrate the AES core into multiple encryption modes.
-- Develop dedicated verification environments.
-- Verify the design using reference vectors and simulation.
-- Gain practical experience in cryptographic RTL design and verification.
-
----
-
-# 🚀 Future Improvements
-
-Possible future extensions include:
-
-- AES decryption support.
-- Unified encryption/decryption architecture.
-- SystemVerilog Assertions (SVA).
-- Functional coverage.
-- Constrained-random verification.
-- Formal verification.
-- FPGA implementation.
-- Throughput and latency analysis.
-- Pipelined AES architecture.
-- Hardware performance optimization.
-- Additional authenticated encryption modes such as GCM.
-
----
 
 # 👨‍💻 Author
 
@@ -650,23 +469,3 @@ Possible future extensions include:
 
 Electronics & Communications Engineering Student  
 Cairo University
-
-### Areas of Interest
-
-- RTL Design
-- Digital Verification
-- SystemVerilog & UVM
-- FPGA
-- Embedded Systems
-- Hardware Security
-
----
-
-## ⭐ Project
-
-This project demonstrates a complete hardware-oriented implementation of AES, starting from the individual cryptographic transformations and key expansion, through the complete AES encryption core, and finally integrating the core into multiple block cipher modes.
-
-The repository includes the RTL implementation, configuration files, dedicated testbenches, simulation scripts, and verification environments.
-
-**Repository:**  
-https://github.com/eltaweel1/-AES_Encryption
